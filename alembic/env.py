@@ -5,6 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import get_settings
 from app.db.base import Base
+import app.models  # noqa: F401 — register model metadata for Alembic autogeneration
 
 # Import model modules here as they are added so Alembic can discover their metadata.
 config = context.config
