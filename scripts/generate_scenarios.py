@@ -57,7 +57,7 @@ def generate(seed: int = 20261029, vendors: int = 4, purchase_orders: int = 12) 
                     "status": "POSTED", "quantity": format(receipt_qty, "f"),
                 })
         invoice_id = f"demo-invoice-{index:03d}"
-        invoice_vendor = f"demo-vendor-{(vendor_index % vendors) + 1}" if index % 8 == 0 else vendor_id
+        invoice_vendor = f"demo-vendor-{((vendor_index % vendors) + 1):03d}" if index % 8 == 0 else vendor_id
         invoice_currency = ("USD" if currency == "EUR" else "EUR") if index % 9 == 0 else currency
         invoice_number = f"DEMO-INV-{index:03d}"
         invoice_date = date(2026, 10, 1) + timedelta(days=index % 20)
