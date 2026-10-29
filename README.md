@@ -201,7 +201,7 @@ Configuration is read from environment variables; `.env` is ignored by Git. `.en
 3. Specify and test deterministic three-way matching.
 4. Bootstrap FastAPI, PostgreSQL, and Docker Compose.
 5. Add SQLAlchemy models, constraints, and the domain schema migration (completed in PR #9).
-6. Generate reproducible synthetic procurement scenarios and implement deterministic matching with unit tests and golden cases.
+6. Generate reproducible synthetic procurement fixtures and implement deterministic matching with unit tests and golden cases (in progress in PR #10).
 7. Add simulated ERP read tools, policy retrieval, and LangGraph orchestration.
 8. Add policy/authorization gates, auditability, evaluations, and deployment automation.
 
@@ -209,7 +209,18 @@ Track work in [GitHub Issues](https://github.com/AliSaeed090/procureops-ai/issue
 
 ## Current status
 
-The FastAPI/PostgreSQL scaffold and procurement SQLAlchemy schema are merged. The repository now has vendor, PO/line, goods receipt/line, invoice/line, idempotent intake, matching-run, exception, approval-decision, attachment metadata, and audit-event models with an Alembic migration and constraint tests. Next: reproducible synthetic procurement scenarios and deterministic three-way matching. See [Issue #1: Define procure-to-pay workflow and business assumptions](https://github.com/AliSaeed090/procureops-ai/issues/1) for the business decisions and acceptance criteria.
+The FastAPI/PostgreSQL scaffold and procurement SQLAlchemy schema are merged. The repository now has vendor, PO/line, goods receipt/line, invoice/line, idempotent intake, matching-run, exception, approval-decision, attachment metadata, and audit-event models with an Alembic migration and constraint tests. The deterministic line-level matching service and its unit tests, plus a seedable synthetic fixture generator, are proposed in [PR #10](https://github.com/AliSaeed090/procureops-ai/pull/10).
+
+### Generate synthetic fixtures
+
+After installing the development dependencies, generate a portable JSON dataset with valid vendor/PO/receipt/invoice-line relationships:
+
+```bash
+python -m scripts.generate_scenarios
+python -m scripts.generate_scenarios --seed 42 --vendors 5 --purchase-orders 20 --output data/custom_scenarios.json
+```
+
+The default seed is `20261029`; repeating the same seed and parameters produces identical records. The generator writes synthetic JSON fixtures and **does not reset or mutate PostgreSQL**. Database reseeding will be added with the simulated ERP persistence adapter, so this command is safe to run repeatedly against any environment. See [Issue #1: Define procure-to-pay workflow and business assumptions](https://github.com/AliSaeed090/procureops-ai/issues/1) for the business decisions and acceptance criteria.
 
 ## Out of scope for the initial MVP
 
