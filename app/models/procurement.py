@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import (
     CheckConstraint,
     Date,
+    DateTime,
     ForeignKey,
     Index,
     Numeric,
     String,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,7 +31,7 @@ class Vendor(Base):
     external_id: Mapped[str] = mapped_column(String(100), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="ACTIVE")
-    created_at: Mapped[object] = mapped_column(nullable=False, server_default="CURRENT_TIMESTAMP")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
 
     purchase_orders: Mapped[list[PurchaseOrder]] = relationship(back_populates="vendor")
     invoices: Mapped[list[Invoice]] = relationship(back_populates="vendor")
