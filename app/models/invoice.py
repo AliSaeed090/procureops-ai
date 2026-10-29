@@ -1,16 +1,19 @@
 from __future__ import annotations
 
+from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import (
     CheckConstraint,
     Date,
+    DateTime,
     ForeignKey,
     Index,
     JSON,
     Numeric,
     String,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -54,8 +57,8 @@ class Invoice(Base):
     tax_amount: Mapped[Decimal] = mapped_column(Numeric(18, 2), nullable=False, default=Decimal("0"))
     shipping_amount: Mapped[Decimal] = mapped_column(Numeric(18, 2), nullable=False, default=Decimal("0"))
     discount_amount: Mapped[Decimal] = mapped_column(Numeric(18, 2), nullable=False, default=Decimal("0"))
-    current_matching_run_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
-    created_at: Mapped[object] = mapped_column(nullable=False, server_default="CURRENT_TIMESTAMP")
+    current_matching_run_id: Mapped[str | None] = mapped_column(ForeignKey("matching_runs.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
 
     vendor: Mapped[Vendor] = relationship(back_populates="invoices")
     purchase_order: Mapped[PurchaseOrder] = relationship()
@@ -110,6 +113,6 @@ class InvoiceIntake(Base):
     payload_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     payload: Mapped[dict] = mapped_column(JSON, nullable=False)
     invoice_id: Mapped[str | None] = mapped_column(ForeignKey("invoices.id", ondelete="RESTRICT"), nullable=True)
-    received_at: Mapped[object] = mapped_column(nullable=False, server_default="CURRENT_TIMESTAMP")
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
 
     invoice: Mapped[Invoice | None] = relationship(back_populates="intake")
