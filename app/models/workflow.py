@@ -81,7 +81,7 @@ class ApprovalDecision(Base):
     decision: Mapped[str] = mapped_column(String(20), nullable=False)
     comment: Mapped[str | None] = mapped_column(Text, nullable=True)
     policy_version: Mapped[str] = mapped_column(String(50), nullable=False)
-    created_at: Mapped[object] = mapped_column(nullable=False, server_default="CURRENT_TIMESTAMP")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
 
     invoice: Mapped[Invoice] = relationship(back_populates="approval_decisions")
 
@@ -101,6 +101,6 @@ class InvoiceAttachment(Base):
     content_type: Mapped[str] = mapped_column(String(100), nullable=False)
     size_bytes: Mapped[int] = mapped_column(nullable=False)
     checksum_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
-    created_at: Mapped[object] = mapped_column(nullable=False, server_default="CURRENT_TIMESTAMP")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
 
     invoice: Mapped[Invoice] = relationship(back_populates="attachments")
