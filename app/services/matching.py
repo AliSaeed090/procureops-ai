@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
-from typing import Sequence
+from collections.abc import Sequence
 
 DEFAULT_PRICE_TOLERANCE = Decimal("0.02")
 ELIGIBLE_PRIOR_STATUSES = {
