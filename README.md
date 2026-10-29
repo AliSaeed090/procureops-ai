@@ -44,7 +44,7 @@ The matching result can contain multiple exceptions at once. Each finding should
 |---|---|---|
 | `MATCHED` | All required matching checks pass and no blocking matching exception remains. | Eligible for a separate policy/authorization decision; not itself approval or payment. |
 | `PRICE_VARIANCE` | Invoice unit price exceeds the effective PO/company tolerance. | Review or hold according to policy. |
-| `QUANTITY_MISMATCH` | A genuine line-level quantity inconsistency that is not better represented by pending receipt or over-invoicing. | Review; define the exact trigger with matching examples before implementation. |
+| `QUANTITY_MISMATCH` | Source quantities are individually valid, but receipt/PO relationships or quantities violate canonical procurement invariants (for example, a receipt line points to a PO line belonging to another PO). | Treat as a data-integrity finding, exclude invalid receipt quantity, and require review. Missing/ambiguous invoice-to-PO-line mapping is an intake validation/manual-resolution failure, not this code. Normal partial receipts and over-invoicing use their dedicated codes. |
 | `PENDING_RECEIPT` | Invoiced quantity is within PO authorization, but some quantity is not yet recorded as received. | Hold, wait, or consider partial-payment recommendation according to company policy. Does not prove supplier fault or that goods are in transit. |
 | `OVER_INVOICED_QUANTITY` | Cumulative valid invoice quantity exceeds the PO-authorized quantity. | Blocking exception; human/policy resolution required. |
 | `MISSING_GOODS_RECEIPT` | No receipt record exists for a PO line that requires receipt evidence. | Hold or review; do not assume the goods were received. |
@@ -66,7 +66,9 @@ A potential-duplicate warning is kept separate from the matching status, but it 
 - Compare cumulative valid invoiced quantity with PO-authorized quantity, accounting for prior invoices that are not voided or rejected.
 - A duplicate attempt blocked by the duplicate check is not included in cumulative invoiced quantity.
 - Distinguish unreceived but PO-authorized quantity (`PENDING_RECEIPT`) from invoicing beyond the PO-authorized quantity (`OVER_INVOICED_QUANTITY`).
-- If a line requires receipt evidence and no receipt record exists, report `MISSING_GOODS_RECEIPT`.
+- If a line requires receipt evidence and no receipt record exists, report `MISSING_GOODS_RECEIPT`; if receipt records exist but posted received quantity is below cumulative eligible invoiced quantity, report `PENDING_RECEIPT` when cumulative invoicing is still within PO authorization.
+- If cumulative eligible invoiced quantity exceeds PO-authorized quantity, report `OVER_INVOICED_QUANTITY` for that line and do not also report `PENDING_RECEIPT` for the same quantity condition.
+- Partial invoices are allowed; invoice quantity need not equal the full PO-line quantity. For example, an invoice for 40 units against a 100-unit PO line can pass quantity checks if 40 units are posted received and cumulative invoicing remains within authorization.
 - The company policy determines the next action for pending receipts; the matching result itself does not authorize payment.
 
 ### Price tolerance and money
