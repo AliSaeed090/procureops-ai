@@ -201,7 +201,7 @@ Configuration is read from environment variables; `.env` is ignored by Git. `.en
 3. Specify and test deterministic three-way matching.
 4. Bootstrap FastAPI, PostgreSQL, and Docker Compose.
 5. Add SQLAlchemy models, constraints, and the domain schema migration (completed in PR #9).
-6. Generate reproducible synthetic procurement fixtures and implement deterministic matching with unit tests and golden cases (matching and tests merged; database seeding remains).
+6. Generate reproducible synthetic procurement fixtures and implement deterministic matching with unit tests and golden cases (matching/tests merged in PR #10; guarded demo database seeding and case catalog in PR #11).
 7. Add simulated ERP read tools, policy retrieval, and LangGraph orchestration.
 8. Add policy/authorization gates, auditability, evaluations, and deployment automation.
 
@@ -209,7 +209,7 @@ Track work in [GitHub Issues](https://github.com/AliSaeed090/procureops-ai/issue
 
 ## Current status
 
-The FastAPI/PostgreSQL scaffold and procurement SQLAlchemy schema are merged. The repository now has vendor, PO/line, goods receipt/line, invoice/line, idempotent intake, matching-run, exception, approval-decision, attachment metadata, and audit-event models with an Alembic migration and constraint tests. The deterministic line-level matching service, unit tests, and seedable synthetic fixture generator are merged in [PR #10](https://github.com/AliSaeed090/procureops-ai/pull/10). The matching tests are green in CI. The fixture generator currently exports portable JSON and intentionally does not reset PostgreSQL; safe database seeding remains follow-up work.
+The FastAPI/PostgreSQL scaffold and procurement SQLAlchemy schema are merged. The repository now has vendor, PO/line, goods receipt/line, invoice/line, idempotent intake, matching-run, exception, approval-decision, attachment metadata, and audit-event models with an Alembic migration and constraint tests. The deterministic line-level matching service, unit tests, and seedable synthetic fixture generator are merged in [PR #10](https://github.com/AliSaeed090/procureops-ai/pull/10). The matching tests are green in CI. The fixture generator exports portable JSON, and [PR #11](https://github.com/AliSaeed090/procureops-ai/pull/11) adds a guarded command to reseed only demo-prefixed records in the local development database.
 
 ### Generate synthetic fixtures
 
