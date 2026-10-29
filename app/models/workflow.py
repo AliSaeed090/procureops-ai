@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import (
     CheckConstraint,
+    DateTime,
     ForeignKey,
     Index,
     JSON,
@@ -11,6 +13,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -30,8 +33,8 @@ class MatchingRun(Base):
     rules_version: Mapped[str] = mapped_column(String(50), nullable=False)
     input_snapshot: Mapped[dict] = mapped_column(JSON, nullable=False)
     result_snapshot: Mapped[dict | None] = mapped_column(JSON, nullable=True)
-    created_at: Mapped[object] = mapped_column(nullable=False, server_default="CURRENT_TIMESTAMP")
-    completed_at: Mapped[object | None] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     invoice: Mapped[Invoice] = relationship(back_populates="matching_runs", foreign_keys=[invoice_id])
     exceptions: Mapped[list[InvoiceException]] = relationship(back_populates="matching_run")
