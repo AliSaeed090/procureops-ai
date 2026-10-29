@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     CheckConstraint,
@@ -9,7 +9,6 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     JSON,
-    Numeric,
     String,
     Text,
     UniqueConstraint,
@@ -18,6 +17,9 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.invoice import Invoice
 
 
 class MatchingRun(Base):
@@ -60,7 +62,7 @@ class InvoiceException(Base):
     message: Mapped[str] = mapped_column(Text, nullable=False)
     evidence: Mapped[dict] = mapped_column(JSON, nullable=False)
     affected_line_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
-    created_at: Mapped[object] = mapped_column(nullable=False, server_default="CURRENT_TIMESTAMP")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
 
     invoice: Mapped[Invoice] = relationship(back_populates="exceptions")
     matching_run: Mapped[MatchingRun] = relationship(back_populates="exceptions")
