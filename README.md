@@ -157,7 +157,7 @@ Apply database migrations explicitly:
 docker compose exec app alembic upgrade head
 ```
 
-The initial migration establishes the Alembic baseline; domain tables are added with the SQLAlchemy model implementation. Migrations are not run automatically at application startup.
+The Alembic baseline and procurement domain migration create the SQLAlchemy-backed schema. Apply migrations explicitly; schema changes are not run automatically at application startup.
 
 ### Check service health
 
@@ -200,8 +200,8 @@ Configuration is read from environment variables; `.env` is ignored by Git. `.en
 2. Model procurement entities and relationships.
 3. Specify and test deterministic three-way matching.
 4. Bootstrap FastAPI, PostgreSQL, and Docker Compose.
-5. Add SQLAlchemy models, constraints, and reproducible synthetic scenarios.
-6. Implement matching with unit tests and golden cases.
+5. Add SQLAlchemy models and database constraints (in progress on the domain-model branch).
+6. Generate reproducible synthetic procurement scenarios and implement matching with unit tests and golden cases.
 7. Add simulated ERP read tools, policy retrieval, and LangGraph orchestration.
 8. Add policy/authorization gates, auditability, evaluations, and deployment automation.
 
@@ -209,7 +209,7 @@ Track work in [GitHub Issues](https://github.com/AliSaeed090/procureops-ai/issue
 
 ## Current status
 
-The FastAPI/PostgreSQL development scaffold is implemented on the infrastructure branch: Docker Compose, environment-based settings, liveness/readiness endpoints, Alembic configuration, basic tests, and CI lint/test checks. The SQLAlchemy domain schema and matching logic are the next implementation steps. See [Issue #1: Define procure-to-pay workflow and business assumptions](https://github.com/AliSaeed090/procureops-ai/issues/1) for the business decisions and acceptance criteria.
+The FastAPI/PostgreSQL scaffold is merged: Docker Compose, environment-based settings, liveness/readiness endpoints, Alembic, tests, and CI. The procurement SQLAlchemy models and domain schema migration are being added next; deterministic matching and scenario generation remain subsequent implementation steps. See [Issue #1: Define procure-to-pay workflow and business assumptions](https://github.com/AliSaeed090/procureops-ai/issues/1) for the business decisions and acceptance criteria.
 
 ## Out of scope for the initial MVP
 
