@@ -28,3 +28,19 @@ def test_generated_relationships_are_valid_and_dataset_has_variety():
     )
     assert len(data["purchase_orders"]) >= 10
     assert len(data["invoice_lines"]) > len(data["invoices"])
+
+
+def test_matching_case_catalog_covers_all_supported_exception_codes():
+    data = generate(seed=20261029)
+    codes = {code for case in data["matching_cases"] for code in case["expected_codes"]}
+    assert {
+        "MATCHED", "PRICE_VARIANCE", "QUANTITY_MISMATCH", "PENDING_RECEIPT",
+        "OVER_INVOICED_QUANTITY", "MISSING_GOODS_RECEIPT", "DUPLICATE_INVOICE",
+        "POTENTIAL_DUPLICATE", "VENDOR_MISMATCH", "INVALID_PURCHASE_ORDER",
+        "CURRENCY_MISMATCH", "PO_NOT_OPEN",
+    } <= codes
+    assert any(case.get("fixture_only") for case in data["matching_cases"])
+    assert any(
+        len(case["expected_codes"]) > 1
+        for case in data["matching_cases"]
+    )
