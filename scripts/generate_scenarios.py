@@ -58,7 +58,7 @@ def generate(seed: int = 20261029, vendors: int = 4, purchase_orders: int = 12) 
                 })
         invoice_id = f"demo-invoice-{index:03d}"
         invoice_vendor = f"demo-vendor-{((vendor_index % vendors) + 1):03d}" if index % 8 == 0 else vendor_id
-        invoice_currency = ("USD" if currency == "EUR" else "EUR") if index % 9 == 0 else currency
+        invoice_currency = ("USD" if currency == "EUR" else "EUR") if index % 9 == 0 or index % 8 == 0 else currency
         invoice_number = f"DEMO-INV-{index:03d}"
         invoice_date = date(2026, 10, 1) + timedelta(days=index % 20)
         records["invoices"].append({
@@ -86,9 +86,32 @@ def generate(seed: int = 20261029, vendors: int = 4, purchase_orders: int = 12) 
             })
 
     if len(records["invoices"]) >= 2:
-        records["invoices"][1]["invoice_number"] = records["invoices"][1]["invoice_number"].lower()
+        records["invoices"][1]["invoice_number"] = records["invoices"][0]["invoice_number"].lower()
         records["invoices"][1]["normalized_invoice_number"] = records["invoices"][1]["invoice_number"]
-    return {"seed": seed, "generated_by": "scripts/generate_scenarios.py", **records}
+
+    available_invoices = {row["id"] for row in records["invoices"]}
+    matching_cases = [
+        {"name": "clean_match", "persisted_invoice_id": "demo-invoice-001", "expected_codes": ["MATCHED"]},
+        {"name": "potential_duplicate", "persisted_invoice_id": "demo-invoice-002", "expected_codes": ["POTENTIAL_DUPLICATE", "MATCHED"]},
+        {"name": "pending_receipt", "persisted_invoice_id": "demo-invoice-004", "expected_codes": ["PENDING_RECEIPT"]},
+        {"name": "price_variance", "persisted_invoice_id": "demo-invoice-006", "expected_codes": ["PRICE_VARIANCE"]},
+        {"name": "missing_goods_receipt", "persisted_invoice_id": "demo-invoice-007", "expected_codes": ["MISSING_GOODS_RECEIPT"]},
+        {"name": "vendor_and_currency_mismatch", "persisted_invoice_id": "demo-invoice-008", "expected_codes": ["VENDOR_MISMATCH", "CURRENCY_MISMATCH"]},
+        {"name": "currency_mismatch", "persisted_invoice_id": "demo-invoice-009", "expected_codes": ["CURRENCY_MISMATCH"]},
+        {"name": "over_invoiced_quantity", "persisted_invoice_id": "demo-invoice-010", "expected_codes": ["OVER_INVOICED_QUANTITY"]},
+        {"name": "po_not_open", "persisted_invoice_id": "demo-invoice-011", "expected_codes": ["PO_NOT_OPEN"]},
+        {"name": "duplicate_invoice", "fixture_only": True, "expected_codes": ["DUPLICATE_INVOICE"],
+         "note": "Attempt payload; do not persist because the exact-duplicate database constraint must reject it."},
+        {"name": "invalid_purchase_order", "fixture_only": True, "expected_codes": ["INVALID_PURCHASE_ORDER"],
+         "note": "Negative API fixture; deliberately not persisted as a valid invoice/PO relationship."},
+        {"name": "quantity_mismatch", "fixture_only": True, "expected_codes": ["QUANTITY_MISMATCH"],
+         "note": "Negative matching fixture for an unresolved or inconsistent PO-line mapping."},
+    ]
+    matching_cases = [
+        case for case in matching_cases
+        if case.get("fixture_only") or case.get("persisted_invoice_id") in available_invoices
+    ]
+    return {"seed": seed, "generated_by": "scripts/generate_scenarios.py", **records, "matching_cases": matching_cases}
 
 
 def main() -> None:

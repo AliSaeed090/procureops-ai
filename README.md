@@ -220,7 +220,13 @@ python -m scripts.generate_scenarios
 python -m scripts.generate_scenarios --seed 42 --vendors 5 --purchase-orders 20 --output data/custom_scenarios.json
 ```
 
-The default seed is `20261029`; repeating the same seed and parameters produces identical records. The generator writes synthetic JSON fixtures and **does not reset or mutate PostgreSQL**. Database reseeding will be added with the simulated ERP persistence adapter, so this command is safe to run repeatedly against any environment. See [Issue #1: Define procure-to-pay workflow and business assumptions](https://github.com/AliSaeed090/procureops-ai/issues/1) for the business decisions and acceptance criteria.
+The default seed is `20261029`; repeating the same seed and parameters produces identical records. The generator writes synthetic JSON fixtures and **does not mutate PostgreSQL**. Once the local stack is running and migrations have been applied, seed only the demo-prefixed database records with:
+
+```bash
+python -m scripts.seed_demo --confirm-demo-reset
+```
+
+The database command requires `APP_ENV=development` and an explicit `--confirm-demo-reset` flag. It replaces only records with demo-prefixed IDs and preserves non-demo data. Run it only against your local development database. The generated case catalog includes negative-only fixtures such as an invalid PO reference or exact duplicate attempt, which must not be persisted as valid records because database constraints are expected to reject them. See [Issue #1: Define procure-to-pay workflow and business assumptions](https://github.com/AliSaeed090/procureops-ai/issues/1) for the business decisions and acceptance criteria.
 
 ## Out of scope for the initial MVP
 
