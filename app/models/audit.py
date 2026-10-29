@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from sqlalchemy import Index, JSON, String, Text
+from datetime import datetime
+
+from sqlalchemy import DateTime, Index, JSON, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -22,4 +24,4 @@ class AuditEvent(Base):
     correlation_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
     details: Mapped[dict] = mapped_column(JSON, nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[object] = mapped_column(nullable=False, server_default="CURRENT_TIMESTAMP")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
