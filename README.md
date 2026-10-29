@@ -135,6 +135,65 @@ The intended design separates responsibilities:
 
 The architecture will be implemented incrementally. Components listed here are design direction, not a claim that they already exist.
 
+## Local development
+
+### Prerequisites
+
+- Docker Engine with the Docker Compose plugin.
+- Python 3.11+ for running tests locally (the container image uses Python 3.12).
+
+### Start the stack
+
+```bash
+cp .env.example .env
+# Optional: change the local development password in .env before starting.
+docker compose up --build -d
+docker compose ps
+```
+
+Apply database migrations explicitly:
+
+```bash
+docker compose exec app alembic upgrade head
+```
+
+The initial migration establishes the Alembic baseline; domain tables are added with the SQLAlchemy model implementation. Migrations are not run automatically at application startup.
+
+### Check service health
+
+```bash
+curl http://localhost:8000/health
+curl http://localhost:8000/health/ready
+```
+
+- `GET /health` is a liveness check and does not require PostgreSQL.
+- `GET /health/ready` executes `SELECT 1` and returns HTTP 503 if PostgreSQL is unavailable.
+- Interactive API documentation is available at [http://localhost:8000/docs](http://localhost:8000/docs).
+
+### Run tests and lint
+
+Run these commands from the repository root:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
+python -m pip install -e ".[dev]"
+ruff check app tests
+pytest
+```
+
+GitHub Actions runs lint and tests on pull requests and pushes to `main`.
+
+### Stop the stack
+
+```bash
+docker compose down
+```
+
+This stops containers but preserves the named PostgreSQL volume. To **permanently delete** the local development database as well, run `docker compose down -v`.
+
+Configuration is read from environment variables; `.env` is ignored by Git. `.env.example` contains development-only defaults and must not be used for production credentials. Never commit real secrets.
+
 ## Development plan
 
 1. Define workflow, business assumptions, exception taxonomy, and acceptance examples.
@@ -150,7 +209,7 @@ Track work in [GitHub Issues](https://github.com/AliSaeed090/procureops-ai/issue
 
 ## Current status
 
-Requirements are being documented before implementation. See [Issue #1: Define procure-to-pay workflow and business assumptions](https://github.com/AliSaeed090/procureops-ai/issues/1) for the detailed decisions and acceptance criteria.
+The FastAPI/PostgreSQL development scaffold is implemented on the infrastructure branch: Docker Compose, environment-based settings, liveness/readiness endpoints, Alembic configuration, basic tests, and CI lint/test checks. The SQLAlchemy domain schema and matching logic are the next implementation steps. See [Issue #1: Define procure-to-pay workflow and business assumptions](https://github.com/AliSaeed090/procureops-ai/issues/1) for the business decisions and acceptance criteria.
 
 ## Out of scope for the initial MVP
 
